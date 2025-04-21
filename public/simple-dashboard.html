@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniDine - Simple Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    .restaurant { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Simple Dashboard</h1>
+    <div id="status">Loading...</div>
+    <div id="restaurants"></div>
+  </div>
+
+  <script src="mock-data.js"></script>
+  <script>
+    console.log('Script started');
+    
+    // DOM elements
+    const statusElement = document.getElementById('status');
+    const restaurantsElement = document.getElementById('restaurants');
+    
+    // Check if mock data is available
+    if (typeof restaurantsMock === 'undefined') {
+      statusElement.innerHTML = 'Error: Mock data not loaded';
+      console.error('Mock data not loaded');
+    } else {
+      try {
+        statusElement.innerHTML = 'Data loaded successfully. ' + 
+          'Total restaurants: ' + restaurantsMock.restaurants.length + 
+          ', First restaurant: ' + restaurantsMock.restaurants[0].name;
+        
+        // Display first 3 restaurants
+        let html = '';
+        for (let i = 0; i < 3 && i < restaurantsMock.restaurants.length; i++) {
+          const restaurant = restaurantsMock.restaurants[i];
+          html += `
+            <div class="restaurant">
+              <h3>${restaurant.name}</h3>
+              <p>Location: ${restaurant.location}</p>
+              <p>Cuisine: ${restaurant.cuisine.join(', ')}</p>
+              <p>Status: ${restaurant.visitStatus}</p>
+            </div>
+          `;
+        }
+        restaurantsElement.innerHTML = html;
+        
+        console.log('Restaurants rendered');
+      } catch (error) {
+        statusElement.innerHTML = 'Error: ' + error.message;
+        console.error('Error processing data:', error);
+      }
+    }
+  </script>
+</body>
+</html> 

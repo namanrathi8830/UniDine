@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Page</title>
+</head>
+<body>
+  <h1>Test Page</h1>
+  <p>If you can see this, the server is serving static files correctly.</p>
+  <script>
+    document.write('<p>JavaScript is working.</p>');
+  </script>
+  <script src="mock-data.js"></script>
+  <script>
+    // Try to access the mock data
+    try {
+      document.write('<p>Mock data loaded: ' + (typeof instagramStatusMock !== 'undefined') + '</p>');
+      if (typeof instagramStatusMock !== 'undefined') {
+        document.write('<p>Username: ' + instagramStatusMock.user.username + '</p>');
+        document.write('<p>Total restaurants: ' + statsMock.totalRecommendations + '</p>');
+        document.write('<p>First restaurant: ' + restaurantsMock.restaurants[0].name + '</p>');
+      }
+    } catch (e) {
+      document.write('<p>Error accessing mock data: ' + e.message + '</p>');
+    }
+  </script>
+</body>
+</html> 

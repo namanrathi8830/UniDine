@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mock Data Test</title>
+</head>
+<body>
+  <h1>Mock Data Test</h1>
+  <div id="output">Loading mock data...</div>
+
+  <script>
+    console.log('Starting mock data test');
+    const output = document.getElementById('output');
+    
+    function checkMock() {
+      output.innerHTML = '<h2>Debug Information:</h2>';
+      output.innerHTML += '<p>Script loaded: ✓</p>';
+      
+      try {
+        // Try to reference mock data variables 
+        output.innerHTML += `<p>instagramStatusMock defined: ${typeof instagramStatusMock !== 'undefined' ? '✓' : '✗'}</p>`;
+        output.innerHTML += `<p>statsMock defined: ${typeof statsMock !== 'undefined' ? '✓' : '✗'}</p>`;
+        output.innerHTML += `<p>restaurantsMock defined: ${typeof restaurantsMock !== 'undefined' ? '✓' : '✗'}</p>`;
+        
+        // If all are defined, show some data
+        if (typeof instagramStatusMock !== 'undefined' && 
+            typeof statsMock !== 'undefined' && 
+            typeof restaurantsMock !== 'undefined') {
+          
+          output.innerHTML += '<h2>Data Preview:</h2>';
+          output.innerHTML += `<p>Instagram username: ${instagramStatusMock.user.username}</p>`;
+          output.innerHTML += `<p>Total restaurants: ${statsMock.totalRecommendations}</p>`;
+          output.innerHTML += `<p>First restaurant: ${restaurantsMock.restaurants[0].name}</p>`;
+          
+          output.innerHTML += '<h2>First Restaurant Details:</h2>';
+          output.innerHTML += `<pre>${JSON.stringify(restaurantsMock.restaurants[0], null, 2)}</pre>`;
+        } else {
+          output.innerHTML += '<p style="color: red">Mock data not fully loaded!</p>';
+        }
+      } catch (error) {
+        output.innerHTML += `<p style="color: red">Error: ${error.message}</p>`;
+        console.error('Error in mock test:', error);
+      }
+    }
+  </script>
+  
+  <!-- Load mock data and then check if it's available -->
+  <script src="mock-data.js"></script>
+  <script>
+    // Check after a brief delay to ensure mock-data.js has loaded
+    setTimeout(checkMock, 100);
+  </script>
+</body>
+</html> 

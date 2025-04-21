@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Restaurant Test</title>
+    <script src="mock-data.js"></script>
+</head>
+<body>
+    <h1>Restaurant Test</h1>
+    <div id="restaurant-info"></div>
+
+    <script>
+        window.onload = function() {
+            // Get our new restaurant from mock data
+            const newRestaurant = restaurantsMock.restaurants.find(r => r._id === "rest_new");
+            
+            if (newRestaurant) {
+                document.getElementById('restaurant-info').innerHTML = `
+                    <h2>${newRestaurant.name}</h2>
+                    <p><strong>Location:</strong> ${newRestaurant.location}</p>
+                    <p><strong>Cuisine:</strong> ${newRestaurant.cuisine.join(', ')}</p>
+                    <p><strong>Rating:</strong> ${newRestaurant.rating}</p>
+                    <p><strong>Price Range:</strong> ${newRestaurant.priceRange}</p>
+                    <p><strong>Status:</strong> ${newRestaurant.visitStatus}</p>
+                    <p><strong>Original Message:</strong> "${newRestaurant.originalMessage}"</p>
+                `;
+            } else {
+                document.getElementById('restaurant-info').innerHTML = "<p>Restaurant not found!</p>";
+            }
+        };
+    </script>
+</body>
+</html> 
