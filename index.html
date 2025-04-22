@@ -118,6 +118,25 @@
         .footer-links a:hover {
             opacity: 1;
         }
+        .instagram-btn {
+            display: inline-block;
+            background: linear-gradient(to right, #e94057, #8a2387);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .instagram-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .text-center {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -134,7 +153,11 @@
             <h2 class="section-title">Connect Your Instagram Account</h2>
             <p class="section-subtitle">Automatically save restaurant recommendations from your messages</p>
             
-            <div class="feature-container">
+            <div class="text-center">
+                <a href="/auth" class="instagram-btn">Connect Instagram</a>
+            </div>
+            
+            <div class="feature-container" style="margin-top: 50px;">
                 <div class="feature-box">
                     <div class="feature-icon">💬</div>
                     <h3 class="feature-title">Message Our Bot</h3>
