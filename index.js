@@ -376,7 +376,7 @@ const instagramClient = new InstagramAPI(process.env.INSTAGRAM_ACCESS_TOKEN);
 // Instagram authentication setup
 const CLIENT_ID = process.env.INSTAGRAM_APP_ID;
 const CLIENT_SECRET = process.env.INSTAGRAM_APP_SECRET;
-const REDIRECT_URI = process.env.INSTAGRAM_REDIRECT_URI || `https://1045-223-185-129-3.ngrok-free.app/auth/callback`;
+const REDIRECT_URI = process.env.INSTAGRAM_REDIRECT_URI;
 
 // Generate the Instagram authorization URL
 app.get('/auth', (req, res) => {
