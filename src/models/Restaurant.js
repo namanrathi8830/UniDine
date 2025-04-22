@@ -29,6 +29,7 @@ const RestaurantSchema = new mongoose.Schema({
     max: 5
   },
   images: [String],
+  mediaLink: String,
   contactInfo: {
     phone: String,
     website: String,
@@ -83,6 +84,16 @@ const RestaurantSchema = new mongoose.Schema({
     enum: ['want_to_visit', 'visited', 'not_interested'],
     default: 'want_to_visit'
   },
+  mentions: {
+    type: Number,
+    default: 1
+  },
+  extractionConfidence: {
+    name: { type: Number, default: 0 },
+    location: { type: Number, default: 0 },
+    cuisine: { type: Number, default: 0 },
+    overall: { type: Number, default: 0 }
+  },
   notes: {
     type: String
   }
@@ -132,31 +143,44 @@ function extractRestaurantName(message) {
 }
 
 function extractLocation(message) {
-  // Look for patterns like "in X" or "at X" or "located in X"
-  const locationMatch = message.match(/(?:in|at|located in) ([\w\s,]+)(?:\.|\s|$)/i);
-  return locationMatch ? locationMatch[1].trim() : "Unknown Location";
+  // Look for patterns like "in X" or "at X"
+  const locationMatch = message.match(/(?:in|at|located in|located at) ([\w\s',]+)(?:\.|\,|\n|$)/i);
+  if (locationMatch) {
+    return locationMatch[1].trim();
+  }
+  return "Unknown Location";
 }
 
 function extractCuisineTypes(message) {
   const cuisineTypes = [
-    'Italian', 'Mexican', 'Chinese', 'Japanese', 'Indian', 'Thai', 'French', 
-    'Mediterranean', 'American', 'Korean', 'Vietnamese', 'Greek', 'Spanish', 
-    'Turkish', 'Lebanese', 'Brazilian', 'Peruvian'
+    'Italian', 'Mexican', 'Chinese', 'Japanese', 'Indian', 
+    'Thai', 'French', 'Greek', 'Spanish', 'Korean', 
+    'Vietnamese', 'Mediterranean', 'American', 'Brazilian',
+    'Vegetarian', 'Vegan', 'Seafood', 'BBQ', 'Pizza', 'Sushi'
   ];
   
   const foundCuisines = [];
-  cuisineTypes.forEach(cuisine => {
+  
+  for (const cuisine of cuisineTypes) {
     if (message.toLowerCase().includes(cuisine.toLowerCase())) {
       foundCuisines.push(cuisine);
     }
-  });
+  }
   
   return foundCuisines.length > 0 ? foundCuisines : ['Unknown'];
 }
 
 function isCommonWord(word) {
-  const commonWords = ['the', 'and', 'but', 'for', 'nor', 'yet', 'so', 'as', 'at', 'by', 'in', 'of', 'on', 'to', 'up', 'it', 'is'];
+  const commonWords = [
+    'the', 'and', 'but', 'for', 'nor', 'yet', 'so',
+    'at', 'by', 'from', 'in', 'into', 'of', 'off',
+    'on', 'onto', 'out', 'over', 'to', 'up', 'with',
+    'this', 'that', 'these', 'those', 'they', 'them'
+  ];
+  
   return commonWords.includes(word.toLowerCase());
 }
 
-module.exports = mongoose.model('Restaurant', RestaurantSchema); 
+const Restaurant = mongoose.model('Restaurant', RestaurantSchema);
+
+module.exports = { Restaurant }; 

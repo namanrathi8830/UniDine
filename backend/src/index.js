@@ -10,6 +10,8 @@ const instagramRoutes = require('./routes/instagram.routes');
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const webhookRoutes = require('./routes/webhook.routes');
+const restaurantExtractionRoutes = require('./routes/restaurant-extraction.routes');
+const restaurantRoutes = require('./routes/restaurant.routes');
 
 // Initialize express app
 const app = express();
@@ -27,6 +29,8 @@ app.use('/api/instagram', instagramRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/webhooks', webhookRoutes);
+app.use('/api/restaurant-extraction', restaurantExtractionRoutes);
+app.use('/api/restaurants', restaurantRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

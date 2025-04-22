@@ -4,9 +4,91 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UniDine - Dashboard</title>
-  <!-- Load mock data FIRST before any scripts that depend on it -->
-  <script src="mock-data.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- TEMPORARY MOCK DATA FOR TESTING - REMOVE IN PRODUCTION -->
+  <script>
+    // This script directly injects mock data to bypass API calls
+    window.mockData = {
+      instagramStatus: {
+        success: true,
+        connected: true,
+        user: {
+          instagram_id: "1237269891733766",
+          username: "instagram_user_1237269891733766"
+        }
+      },
+      stats: {
+        success: true,
+        stats: {
+          totalRecommendations: 1,
+          visitStatusStats: {
+            want_to_visit: 1,
+            visited: 0,
+            not_interested: 0
+          },
+          topCuisines: [
+            { _id: "Ice Cream", count: 1 },
+            { _id: "Desserts", count: 1 }
+          ]
+        }
+      },
+      cuisines: {
+        success: true,
+        cuisines: ["Ice Cream", "Desserts"]
+      },
+      restaurants: {
+        success: true,
+        restaurants: [{
+          _id: "6807512dd6fdaf98be33ffc5",
+          name: "Peni Ice Candy",
+          location: "Bengaluru",
+          cuisine: ["Ice Cream", "Desserts"],
+          dishes: ["Malted brownie", "Tender coconut", "Biscoff", "Fruit salad"],
+          visitStatus: "want_to_visit",
+          mentionTexts: ["📍Peni Ice Candy, Bengaluru (HSR Layout, Koramangala, Residency Road)\n\nThey started in 1997 in Kottayam, Kerala with seven flavours. Now they More than 25 amazing flavours with Water, milk and cream based ice candies.\n\nThey are a very popular brand in South India with 50+ outlets in Kerala, Tamil Nadu, Telegana & Karnataka.\n\nDon't miss their Malted brownie, Tender coconut, Biscoff and fruit salad options."],
+          mediaLink: "https://www.instagram.com/reel/18074860963774477",
+          mentions: 2,
+          extractionConfidence: { name: 0.9, location: 0.8, cuisine: 0.7, overall: 0.8 },
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }],
+        pagination: {
+          total: 1,
+          page: 1,
+          limit: 10,
+          pages: 1
+        }
+      }
+    };
+
+    // Override the fetch function to return mock data for specific endpoints
+    const originalFetch = window.fetch;
+    window.fetch = function(url, options) {
+      if (url.includes('/api/instagram/status')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(window.mockData.instagramStatus)
+        });
+      } else if (url.includes('/api/restaurants/stats')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(window.mockData.stats)
+        });
+      } else if (url.includes('/api/restaurants/cuisines')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(window.mockData.cuisines)
+        });
+      } else if (url.includes('/api/restaurants?')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(window.mockData.restaurants)
+        });
+      } else {
+        return originalFetch(url, options);
+      }
+    };
+  </script>
   <!-- Tailwind Config -->
   <script>
     tailwind.config = {
@@ -212,226 +294,60 @@
     </div>
   </footer>
 
+  <!-- Load the dashboard JavaScript -->
+  <script src="/js/dashboard.js"></script>
+  
+  <!-- TEMPORARY FOR TESTING - REMOVE IN PRODUCTION -->
   <script>
-    // Debug information
-    console.log('Dashboard script started');
-    console.log('Mock data loaded:', typeof instagramStatusMock !== 'undefined');
-    
-    // Error handling utilities
-    const errorContainer = document.getElementById('error-container');
-    const errorMessage = document.getElementById('error-message');
-    
-    function showError(message, error) {
-      console.error(message, error);
-      errorMessage.textContent = message + (error ? ': ' + error.message : '');
-      errorContainer.classList.remove('hidden');
-      loadingEl.classList.add('hidden');
-    }
-    
-    // Constants
-    const API_BASE_URL = '/api';
-    
-    // DOM Elements
-    const loadingEl = document.getElementById('loading');
-    const notConnectedEl = document.getElementById('not-connected');
-    const dashboardContentEl = document.getElementById('dashboard-content');
-    const userProfileEl = document.getElementById('user-profile');
-    const usernameEl = document.getElementById('username');
-    const profileImageEl = document.getElementById('profile-image');
-    const totalCountEl = document.getElementById('total-count');
-    const wantToVisitCountEl = document.getElementById('want-to-visit-count');
-    const visitedCountEl = document.getElementById('visited-count');
-    const topCuisineEl = document.getElementById('top-cuisine');
-    const restaurantListEl = document.getElementById('restaurant-list');
-    const emptyStateEl = document.getElementById('empty-state');
-    const paginationEl = document.getElementById('pagination');
-    const showingStartEl = document.getElementById('showing-start');
-    const showingEndEl = document.getElementById('showing-end');
-    const totalResultsEl = document.getElementById('total-results');
-    const prevPageBtn = document.getElementById('prev-page');
-    const nextPageBtn = document.getElementById('next-page');
-    const statusFilterEl = document.getElementById('status-filter');
-    const cuisineFilterEl = document.getElementById('cuisine-filter');
-    const searchEl = document.getElementById('search');
-    
-    // State
-    let currentPage = 1;
-    let totalPages = 1;
-    let restaurants = [];
-    let cuisines = [];
-    
-    // Fetch Instagram connection status - mock version
-    async function fetchInstagramStatus() {
-      try {
-        console.log('Fetching Instagram status');
-        // Return mock data immediately without delay
-        return instagramStatusMock;
-      } catch (error) {
-        showError('Error fetching Instagram status', error);
-        return { connected: false };
-      }
-    }
-    
-    // Load restaurant statistics - mock version
-    async function loadStats() {
-      try {
-        console.log('Loading stats');
-        const stats = statsMock;
-        
-        // Update stats UI
-        totalCountEl.textContent = stats.totalRecommendations;
-        wantToVisitCountEl.textContent = stats.visitStatusStats.want_to_visit;
-        visitedCountEl.textContent = stats.visitStatusStats.visited;
-        
-        // Set top cuisine
-        if (stats.topCuisines && stats.topCuisines.length > 0) {
-          topCuisineEl.textContent = stats.topCuisines[0]._id;
-        } else {
-          topCuisineEl.textContent = '-';
-        }
-      } catch (error) {
-        showError('Error loading statistics', error);
-      }
-    }
-    
-    // Load available cuisines - mock version
-    async function loadCuisines() {
-      try {
-        console.log('Loading cuisines');
-        // Extract unique cuisines from mock restaurant data
-        const allCuisines = restaurantsMock.restaurants.flatMap(r => r.cuisine);
-        cuisines = [...new Set(allCuisines)].sort();
-        
-        // Populate the cuisine filter dropdown
-        cuisineFilterEl.innerHTML = '<option value="">All Cuisines</option>';
-        cuisines.forEach(cuisine => {
-          const option = document.createElement('option');
-          option.value = cuisine;
-          option.textContent = cuisine;
-          cuisineFilterEl.appendChild(option);
-        });
-      } catch (error) {
-        showError('Error loading cuisines', error);
-      }
-    }
-    
-    // Load restaurants with pagination and filtering - mock version
-    async function loadRestaurants() {
-      try {
-        console.log('Loading restaurants');
-        // Show loading state
-        restaurantListEl.innerHTML = '<div class="col-span-full text-center py-4">Loading restaurants...</div>';
-        
-        // Get filter values
-        const status = statusFilterEl.value;
-        const cuisine = cuisineFilterEl.value;
-        const search = searchEl.value.toLowerCase();
-        
-        // Filter the mock data based on filters
-        let filteredRestaurants = [...restaurantsMock.restaurants];
-        
-        if (status) {
-          filteredRestaurants = filteredRestaurants.filter(r => r.visitStatus === status);
-        }
-        
-        if (cuisine) {
-          filteredRestaurants = filteredRestaurants.filter(r => r.cuisine.includes(cuisine));
-        }
-        
-        if (search) {
-          filteredRestaurants = filteredRestaurants.filter(r => 
-            r.name.toLowerCase().includes(search) || 
-            r.location.toLowerCase().includes(search) ||
-            r.originalMessage.toLowerCase().includes(search)
-          );
-        }
-        
-        // Pagination logic
-        const totalResults = filteredRestaurants.length;
-        totalPages = Math.ceil(totalResults / 9);
-        
-        // Calculate slice indexes
-        const startIndex = (currentPage - 1) * 9;
-        const endIndex = startIndex + 9;
-        
-        // Get current page of results
-        restaurants = filteredRestaurants.slice(startIndex, endIndex);
-        
-        // Update pagination info
-        const start = totalResults > 0 ? startIndex + 1 : 0;
-        const end = Math.min(endIndex, totalResults);
-        
-        showingStartEl.textContent = start;
-        showingEndEl.textContent = end;
-        totalResultsEl.textContent = totalResults;
-        
-        // Update pagination buttons
-        prevPageBtn.disabled = currentPage <= 1;
-        nextPageBtn.disabled = currentPage >= totalPages;
-        
-        // If no restaurants, show empty state
-        if (restaurants.length === 0) {
-          emptyStateEl.classList.remove('hidden');
-          restaurantListEl.innerHTML = '';
-          paginationEl.classList.add('hidden');
-        } else {
-          emptyStateEl.classList.add('hidden');
-          paginationEl.classList.remove('hidden');
-          
-          // Render restaurants
-          renderRestaurants();
-        }
-      } catch (error) {
-        showError('Error loading restaurants', error);
-        restaurantListEl.innerHTML = '<div class="col-span-full text-center py-4 text-red-500">Error loading restaurants. Please try again.</div>';
-      }
-    }
-    
-    // Render restaurant cards
-    function renderRestaurants() {
-      try {
-        console.log('Rendering restaurants');
-        restaurantListEl.innerHTML = '';
-        
-        restaurants.forEach(restaurant => {
+    // This script forces the dashboard to show immediately without waiting for API responses
+    document.addEventListener('DOMContentLoaded', function() {
+      // Hide loading state
+      document.getElementById('loading').classList.add('hidden');
+      
+      // Show dashboard content
+      document.getElementById('dashboard-content').classList.remove('hidden');
+      
+      // Update user profile
+      document.getElementById('username').textContent = "instagram_user_1237269891733766";
+      document.getElementById('user-profile').classList.remove('hidden');
+      document.getElementById('user-profile').classList.add('flex');
+      
+      // Populate stats
+      document.getElementById('total-count').textContent = "1";
+      document.getElementById('want-to-visit-count').textContent = "1";
+      document.getElementById('visited-count').textContent = "0";
+      document.getElementById('top-cuisine').textContent = "Ice Cream";
+      
+      // You can manually render a restaurant card here if needed
+      setTimeout(function() {
+        if (document.getElementById('restaurant-list').children.length === 0) {
+          const mockRestaurant = window.mockData.restaurants.restaurants[0];
           const card = document.createElement('div');
           card.className = 'bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden';
           
-          let statusBadge = '';
-          if (restaurant.visitStatus === 'want_to_visit') {
-            statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Want to Visit</span>';
-          } else if (restaurant.visitStatus === 'visited') {
-            statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Visited</span>';
-          } else if (restaurant.visitStatus === 'not_interested') {
-            statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Not Interested</span>';
-          }
-          
-          const cuisineText = restaurant.cuisine && restaurant.cuisine.length > 0 
-            ? restaurant.cuisine.join(', ') 
-            : 'Unknown Cuisine';
-            
-          const locationText = restaurant.location && restaurant.location !== 'Unknown Location'
-            ? restaurant.location
-            : 'Location not specified';
+          const statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Want to Visit</span>';
+          const cuisineText = mockRestaurant.cuisine.join(', ');
+          const locationText = mockRestaurant.location;
+          const messageText = mockRestaurant.mentionTexts[0];
           
           card.innerHTML = `
             <div class="p-4">
               <div class="flex justify-between items-start">
-                <h3 class="text-lg font-semibold text-gray-900">${restaurant.name}</h3>
+                <h3 class="text-lg font-semibold text-gray-900">${mockRestaurant.name}</h3>
                 ${statusBadge}
               </div>
               <div class="mt-2 text-sm text-gray-600">
                 <p><span class="font-medium">Cuisine:</span> ${cuisineText}</p>
                 <p><span class="font-medium">Location:</span> ${locationText}</p>
-                <p class="mt-2 text-gray-500 italic">"${restaurant.originalMessage.substring(0, 100)}${restaurant.originalMessage.length > 100 ? '...' : ''}"</p>
+                <p class="mt-2 text-gray-500 italic">"${messageText.substring(0, 100)}${messageText.length > 100 ? '...' : ''}"</p>
               </div>
               <div class="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
-                <select class="status-select text-sm rounded border-gray-300" data-id="${restaurant._id}">
-                  <option value="want_to_visit" ${restaurant.visitStatus === 'want_to_visit' ? 'selected' : ''}>Want to Visit</option>
-                  <option value="visited" ${restaurant.visitStatus === 'visited' ? 'selected' : ''}>Visited</option>
-                  <option value="not_interested" ${restaurant.visitStatus === 'not_interested' ? 'selected' : ''}>Not Interested</option>
+                <select class="status-select text-sm rounded border-gray-300" data-id="${mockRestaurant._id}">
+                  <option value="want_to_visit" selected>Want to Visit</option>
+                  <option value="visited">Visited</option>
+                  <option value="not_interested">Not Interested</option>
                 </select>
-                <button class="text-sm text-gray-600 hover:text-red-500 transition-colors" data-id="${restaurant._id}">
+                <button class="text-sm text-gray-600 hover:text-red-500 transition-colors" data-id="${mockRestaurant._id}">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
@@ -440,213 +356,15 @@
             </div>
           `;
           
-          restaurantListEl.appendChild(card);
-        });
-      } catch (error) {
-        showError('Error rendering restaurants', error);
-      }
-    }
-    
-    // Set up event listeners
-    function setupEventListeners() {
-      try {
-        console.log('Setting up event listeners');
-        // Pagination
-        prevPageBtn.addEventListener('click', () => {
-          if (currentPage > 1) {
-            currentPage--;
-            loadRestaurants();
-          }
-        });
-        
-        nextPageBtn.addEventListener('click', () => {
-          if (currentPage < totalPages) {
-            currentPage++;
-            loadRestaurants();
-          }
-        });
-        
-        // Filters
-        statusFilterEl.addEventListener('change', () => {
-          currentPage = 1;
-          loadRestaurants();
-        });
-        
-        cuisineFilterEl.addEventListener('change', () => {
-          currentPage = 1;
-          loadRestaurants();
-        });
-        
-        // Search with debounce
-        let searchTimeout;
-        searchEl.addEventListener('input', () => {
-          clearTimeout(searchTimeout);
-          searchTimeout = setTimeout(() => {
-            currentPage = 1;
-            loadRestaurants();
-          }, 300);
-        });
-        
-        // Restaurant status updates
-        restaurantListEl.addEventListener('change', async (event) => {
-          if (event.target.classList.contains('status-select')) {
-            const restaurantId = event.target.dataset.id;
-            const newStatus = event.target.value;
-            
-            try {
-              // In a real app, this would update the status on the server
-              console.log(`Updating restaurant ${restaurantId} status to ${newStatus}`);
-              
-              // Update the mock data
-              const restaurant = restaurants.find(r => r._id === restaurantId);
-              if (restaurant) {
-                restaurant.visitStatus = newStatus;
-                
-                // Also update in the original mock data
-                const originalRestaurant = restaurantsMock.restaurants.find(r => r._id === restaurantId);
-                if (originalRestaurant) {
-                  originalRestaurant.visitStatus = newStatus;
-                }
-              }
-              
-              // Update status counts in mock stats
-              if (newStatus === 'want_to_visit') {
-                statsMock.visitStatusStats.want_to_visit++;
-                if (restaurant.visitStatus === 'visited') {
-                  statsMock.visitStatusStats.visited--;
-                } else if (restaurant.visitStatus === 'not_interested') {
-                  statsMock.visitStatusStats.not_interested--;
-                }
-              } else if (newStatus === 'visited') {
-                statsMock.visitStatusStats.visited++;
-                if (restaurant.visitStatus === 'want_to_visit') {
-                  statsMock.visitStatusStats.want_to_visit--;
-                } else if (restaurant.visitStatus === 'not_interested') {
-                  statsMock.visitStatusStats.not_interested--;
-                }
-              } else if (newStatus === 'not_interested') {
-                statsMock.visitStatusStats.not_interested++;
-                if (restaurant.visitStatus === 'want_to_visit') {
-                  statsMock.visitStatusStats.want_to_visit--;
-                } else if (restaurant.visitStatus === 'visited') {
-                  statsMock.visitStatusStats.visited--;
-                }
-              }
-              
-              // Refresh stats
-              await loadStats();
-            } catch (error) {
-              showError('Error updating restaurant status', error);
-            }
-          }
-        });
-        
-        // Delete restaurant
-        restaurantListEl.addEventListener('click', async (event) => {
-          const deleteButton = event.target.closest('button[data-id]');
-          if (deleteButton) {
-            const restaurantId = deleteButton.dataset.id;
-            
-            if (confirm('Are you sure you want to delete this restaurant?')) {
-              try {
-                // In a real app, this would delete the restaurant on the server
-                console.log(`Deleting restaurant ${restaurantId}`);
-                
-                // Find the restaurant in our mock data
-                const restaurantIndex = restaurantsMock.restaurants.findIndex(r => r._id === restaurantId);
-                if (restaurantIndex !== -1) {
-                  const restaurant = restaurantsMock.restaurants[restaurantIndex];
-                  
-                  // Update stats based on the restaurant's status
-                  statsMock.totalRecommendations--;
-                  if (restaurant.visitStatus === 'want_to_visit') {
-                    statsMock.visitStatusStats.want_to_visit--;
-                  } else if (restaurant.visitStatus === 'visited') {
-                    statsMock.visitStatusStats.visited--;
-                  } else if (restaurant.visitStatus === 'not_interested') {
-                    statsMock.visitStatusStats.not_interested--;
-                  }
-                  
-                  // Remove from mock data
-                  restaurantsMock.restaurants.splice(restaurantIndex, 1);
-                }
-                
-                // Remove from current view
-                restaurants = restaurants.filter(r => r._id !== restaurantId);
-                deleteButton.closest('.bg-white').remove();
-                
-                // If no restaurants left, show empty state
-                if (restaurants.length === 0) {
-                  emptyStateEl.classList.remove('hidden');
-                  paginationEl.classList.add('hidden');
-                }
-                
-                // Refresh stats
-                await loadStats();
-              } catch (error) {
-                showError('Error deleting restaurant', error);
-              }
-            }
-          }
-        });
-      } catch (error) {
-        showError('Error setting up event listeners', error);
-      }
-    }
-    
-    // Show the not connected state
-    function showNotConnected() {
-      loadingEl.classList.add('hidden');
-      notConnectedEl.classList.remove('hidden');
-    }
-    
-    // Initialize the dashboard
-    async function initDashboard() {
-      try {
-        console.log('Initializing dashboard');
-        
-        // Check if mock data is available
-        if (typeof instagramStatusMock === 'undefined' || typeof restaurantsMock === 'undefined') {
-          throw new Error('Mock data not loaded properly');
+          document.getElementById('restaurant-list').appendChild(card);
+          
+          // Update pagination
+          document.getElementById('showing-start').textContent = "1";
+          document.getElementById('showing-end').textContent = "1";
+          document.getElementById('total-results').textContent = "1";
         }
-        
-        // Check if user is connected to Instagram - using mock data
-        const instagramStatus = await fetchInstagramStatus();
-        
-        if (!instagramStatus.connected) {
-          showNotConnected();
-          return;
-        }
-        
-        // Populate the user profile info
-        usernameEl.textContent = instagramStatus.user.username;
-        userProfileEl.classList.remove('hidden');
-        userProfileEl.classList.add('flex');
-        
-        // Load restaurant stats
-        await loadStats();
-        
-        // Load available cuisines for the filter
-        await loadCuisines();
-        
-        // Load first page of restaurants
-        await loadRestaurants();
-        
-        // Show the dashboard content
-        dashboardContentEl.classList.remove('hidden');
-        loadingEl.classList.add('hidden');
-        
-        // Set up event listeners
-        setupEventListeners();
-        
-        console.log('Dashboard initialization complete');
-      } catch (error) {
-        showError('Failed to initialize dashboard', error);
-      }
-    }
-    
-    // Initialize on page load
-    document.addEventListener('DOMContentLoaded', initDashboard);
+      }, 500);
+    });
   </script>
 </body>
 </html> 

@@ -21,4 +21,7 @@ router.get('/accounts/:accountId/media/:mediaId/comments', instagramController.g
 // Interaction endpoints
 router.post('/accounts/:accountId/comments/:commentId/reply', instagramController.respondToComment);
 
+// Check Instagram connection status
+router.get('/status', instagramController.getConnectionStatus);
+
 module.exports = router; 

@@ -270,3 +270,71 @@ Then use the generated URL (e.g., `https://abc123.ngrok.io`) as your webhook URL
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+# UniDine Instagram Bot
+
+A web application that processes Instagram messages and comments to extract and save restaurant recommendations.
+
+## Deployment on Vercel
+
+### Prerequisites
+- A Vercel account
+- MongoDB database (can use MongoDB Atlas free tier)
+- Instagram app set up in Meta for Developers portal
+
+### How to Deploy
+
+1. **Push your code to GitHub**
+   ```
+   git init
+   git add .
+   git commit -m "Initial commit"
+   git remote add origin your-github-repo-url
+   git push -u origin main
+   ```
+
+2. **Connect to Vercel**
+   - Go to [Vercel](https://vercel.com)
+   - Sign in and create a new project
+   - Import your GitHub repository
+   - Configure the following environment variables in Vercel:
+     - `VERIFY_TOKEN`
+     - `INSTAGRAM_WEBHOOK_VERIFY_TOKEN`
+     - `INSTAGRAM_ACCESS_TOKEN`
+     - `INSTAGRAM_APP_ID`
+     - `INSTAGRAM_APP_SECRET`
+     - `INSTAGRAM_REDIRECT_URI` (use your Vercel domain: `https://your-app.vercel.app/auth/callback`)
+     - `MONGODB_URI`
+
+3. **Update Instagram App Configuration**
+   - Go to [Meta for Developers](https://developers.facebook.com/apps/)
+   - Select your app
+   - Go to "Instagram Basic Display" settings
+   - Update the Valid OAuth Redirect URIs with your Vercel domain
+   - Save changes
+
+4. **Test the Deployment**
+   - Visit your Vercel URL to access the application
+   - Try the Instagram login flow
+   - Set up the webhook in your Instagram app to point to your Vercel domain
+
+## Local Development
+
+1. **Install dependencies**
+   ```
+   npm install
+   ```
+
+2. **Set up environment variables**
+   - Copy `.env.example` to `.env`
+   - Fill in your credentials
+
+3. **Run development server**
+   ```
+   npm run dev
+   ```
+
+4. **Expose local server for testing (optional)**
+   ```
+   npm run expose
+   ```
