@@ -303,7 +303,7 @@ A web application that processes Instagram messages and comments to extract and 
      - `INSTAGRAM_ACCESS_TOKEN`
      - `INSTAGRAM_APP_ID`
      - `INSTAGRAM_APP_SECRET`
-     - `INSTAGRAM_REDIRECT_URI` (use your Vercel domain: `https://your-app.vercel.app/auth/callback`)
+     - `INSTAGRAM_REDIRECT_URI` (use this URL: `https://unidine-5ywatr2en-naman-rathis-projects.vercel.app/auth/callback`)
      - `MONGODB_URI`
 
 3. **Update Instagram App Configuration**
