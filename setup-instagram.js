@@ -8,7 +8,7 @@ const PORT = 3000;
 // Get these values from the Facebook/Instagram Developer Dashboard
 const CLIENT_ID = process.env.INSTAGRAM_APP_ID;
 const CLIENT_SECRET = process.env.INSTAGRAM_APP_SECRET;
-const REDIRECT_URI = `https://unidine-5ywatr2en-naman-rathis-projects.vercel.app/auth/callback`;
+const REDIRECT_URI = `https://unidine.vercel.app/auth/callback`;
 
 // Generate the Instagram authorization URL
 app.get('/auth', (req, res) => {
