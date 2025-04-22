@@ -301,7 +301,7 @@ A web application that processes Instagram messages and comments to extract and 
      - `VERIFY_TOKEN`
      - `INSTAGRAM_WEBHOOK_VERIFY_TOKEN`
      - `INSTAGRAM_ACCESS_TOKEN`
-     - `INSTAGRAM_APP_ID`
+     - `INSTAGRAM_APP_ID` (Instagram-specific app ID: 634093416075849)
      - `INSTAGRAM_APP_SECRET`
      - `INSTAGRAM_REDIRECT_URI` (use this URL: `https://unidine.vercel.app/auth/callback`)
      - `MONGODB_URI`
